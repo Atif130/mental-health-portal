@@ -16,11 +16,13 @@ app.post('/ask-ai', async (req, res) => {
       return res.status(400).send({ error: 'Message is required' });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    // YEH LINE HUMNE CHANGE KI HAI
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    
     const result = await model.generateContent(message);
     const response = await result.response;
     const text = response.text();
-
+    
     res.send({ reply: text });
   } catch (error) {
     console.error("Error with Generative AI:", error);
