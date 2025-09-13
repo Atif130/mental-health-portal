@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 import Checkup from './Checkup';
-import MoodAnalysis from './MoodAnalysis'; // Naya component import karein
+import MoodAnalysis from './MoodAnalysis';
+import Humanoid from './Humanoid'; // Naya component import karein
 
 function Dashboard() {
-  const [view, setView] = useState('main'); // 'main', 'checkup', ya 'mood'
+  const [view, setView] = useState('main'); // 'main', 'checkup', 'mood', ya 'humanoid'
 
   const handleLogout = async () => {
     try {
@@ -23,7 +24,9 @@ function Dashboard() {
       <button onClick={() => setView('checkup')}>
         1. Mental Health Checkup
       </button>
-      <button disabled>2. Talk to Humanoid (Coming Soon)</button>
+      <button onClick={() => setView('humanoid')}>
+        2. Talk to Humanoid
+      </button>
       <button onClick={() => setView('mood')}>
         3. Mood Analysis Using Face
       </button>
@@ -40,6 +43,8 @@ function Dashboard() {
         return <Checkup onComplete={() => setView('main')} />;
       case 'mood':
         return <MoodAnalysis onComplete={() => setView('main')} />;
+      case 'humanoid':
+        return <Humanoid onComplete={() => setView('main')} />;
       default:
         return renderMainView();
     }
