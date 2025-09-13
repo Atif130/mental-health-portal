@@ -17,7 +17,7 @@ app.post('/ask-ai', async (req, res) => {
     }
 
     // YEH LINE HUMNE CHANGE KI HAI
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
     
     const result = await model.generateContent(message);
     const response = await result.response;
