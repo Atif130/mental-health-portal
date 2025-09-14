@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import './Feature.css'; // Uses the same base styles
 
 // IMPORTANT: Yahan apni nayi waali API Key daalein
-const API_KEY = 'YOUR_API_KEY_HERE';
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 // A friendly robot face component
 const RobotFace = ({ mouthShape }) => {
