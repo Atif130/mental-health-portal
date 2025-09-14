@@ -121,3 +121,15 @@
   transform: scale(1.1);
   background: #f7fafc;
 }
+
+/* --- Responsive Styles --- */
+@media (max-width: 768px) {
+  .form-card {
+    padding: 25px;
+    margin: 20px;
+    width: auto;
+  }
+  .form-card h2 {
+    font-size: 1.5rem;
+  }
+}

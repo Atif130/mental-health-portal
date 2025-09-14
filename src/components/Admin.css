@@ -246,3 +246,26 @@
 .logout-button:hover {
   background: #b02a37;
 }
+
+/* --- Responsive Styles --- */
+@media (max-width: 768px) {
+  .admin-dashboard-card {
+    padding: 15px;
+  }
+  .admin-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .admin-header h2 {
+    font-size: 1.8rem;
+  }
+  .search-bar {
+    width: 100%;
+  }
+  .student-grid {
+    grid-template-columns: 1fr;
+  }
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}

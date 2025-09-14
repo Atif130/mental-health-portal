@@ -257,3 +257,16 @@ body, html {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.02); }
 }
+/* --- Responsive Styles --- */
+@media (max-width: 768px) {
+  .main-card {
+    padding: 30px;
+    margin: 20px;
+  }
+  .main-card h1 {
+    font-size: 2rem;
+  }
+  .choice-container {
+    flex-direction: column;
+  }
+}
