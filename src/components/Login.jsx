@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { auth } from '../firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import './Form.css'; // Import the new CSS file
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -10,8 +11,7 @@ function Login() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      alert('Login successful!');
-      // Login ke baad user automatically dashboard par chala jayega
+      // Login success is handled by App.jsx
     } catch (error) {
       console.error("Error logging in: ", error);
       alert(error.message);
@@ -19,12 +19,26 @@ function Login() {
   };
 
   return (
-    <div>
-      <h2>Login</h2>
+    <div className="form-card">
+      <h2>Student Login 🔑</h2>
       <form onSubmit={handleLogin}>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required /><br/>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required /><br/>
-        <button type="submit">Login</button>
+        <input 
+          type="email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          placeholder="Email" 
+          className="form-input" 
+          required 
+        />
+        <input 
+          type="password" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          placeholder="Password" 
+          className="form-input" 
+          required 
+        />
+        <button type="submit" className="form-button">Login</button>
       </form>
     </div>
   );

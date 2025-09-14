@@ -1,44 +1,95 @@
 import React, { useState, useEffect } from 'react';
-import { auth } from './firebase'; // Firebase se auth import karein
-import { onAuthStateChanged } from 'firebase/auth'; // Yeh jaasoos (spy) hai
+import { auth } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import './App.css'; // Nayi CSS file import karein
+
+// Import all components
+import Dashboard from './components/Dashboard';
 import Login from './components/Login';
 import Register from './components/Register';
-import Dashboard from './components/Dashboard';
+import AdminLogin from './components/AdminLogin';
+import AdminDashboard from './components/AdminDashboard';
 
 function App() {
-  const [user, setUser] = useState(null); // Shuru mein user null (logged-out) hai
-  const [isRegistering, setIsRegistering] = useState(false); // Login/Register toggle
+  const [user, setUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [view, setView] = useState('main');
+  const [isRegistering, setIsRegistering] = useState(false);
 
-  // Yeh useEffect ek jaasoos (spy) set karta hai jo hamesha dekhta rehta hai
-  // ki user logged-in hai ya nahi
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser); // Agar user login karta hai to uski info yahan aa jati hai
+      setUser(currentUser);
     });
-
-    // Cleanup function (jab component band ho to spy ko hata do)
     return () => unsubscribe();
   }, []);
 
-  if (user) {
-    // Agar user logged-in hai, to Dashboard dikhao
-    return <Dashboard />;
+  const handleAdminLogout = () => {
+    setIsAdmin(false);
+    setView('main');
+  };
+
+  // Main Choice Screen (New Design)
+  if (view === 'main') {
+    return (
+      <div className="app-container">
+        <div className="main-card">
+          <h1>Welcome to MindWell</h1>
+          <p>Your confidential space for mental wellness.</p>
+          <div className="choice-container">
+            <button className="choice-button" onClick={() => setView('student')}>
+              👤 Enter Your Safe Space
+            </button>
+            <button className="choice-button" onClick={() => setView('admin')}>
+              🛡️ Admin & Counselor Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  // Agar user logged-in nahi hai, to Login ya Register form dikhao
+  // Student View Logic (Abhi iska design nahi kiya hai)
+  // In App.jsx, replace this entire block
+if (view === 'student') {
+  if (user) {
+    return <Dashboard />;
+  }
   return (
-    <div>
-      <h1>Welcome to the Mental Health Portal</h1>
-      {isRegistering ? (
-        <Register />
-      ) : (
-        <Login />
-      )}
-      <button onClick={() => setIsRegistering(!isRegistering)}>
-        {isRegistering ? 'Already have an account? Login' : "Don't have an account? Register"}
-      </button>
+    <div className="form-container">
+       <button className="back-button" onClick={() => setView('main')}>
+          &#x2190; {/* This is a left arrow */}
+       </button>
+      <div>
+        {isRegistering ? (
+          <Register />
+        ) : (
+          <Login />
+        )}
+        <div className="form-toggle">
+          <button onClick={() => setIsRegistering(!isRegistering)}>
+            {isRegistering ? 'Already have an account? Login' : "Don't have an account? Register"}
+          </button>
+        </div>
+      </div>
     </div>
   );
+}
+  
+  // Admin View Logic (Abhi iska design nahi kiya hai)
+  // In App.jsx, replace this entire block
+if (view === 'admin') {
+  if (isAdmin) {
+    return <AdminDashboard onLogout={handleAdminLogout} />;
+  }
+  return (
+    <div className="form-container">
+       <button className="back-button" onClick={() => setView('main')}>
+          &#x2190;
+       </button>
+       <AdminLogin onLogin={() => setIsAdmin(true)} />
+    </div>
+  );
+}
 }
 
 export default App;

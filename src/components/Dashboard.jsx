@@ -1,12 +1,31 @@
-import React, { useState } from 'react';
-import { auth } from '../firebase';
+import React, { useState, useEffect } from 'react';
+import { auth, db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
-import Checkup from './Checkup';
+import AiCheckup from './AiCheckup';
 import MoodAnalysis from './MoodAnalysis';
-import Humanoid from './Humanoid'; // Naya component import karein
+import Humanoid from './Humanoid';
+import PastReports from './PastReports';
+import Journal from './Journal';
+import './Dashboard.css'; // Nayi CSS file import karein
 
 function Dashboard() {
-  const [view, setView] = useState('main'); // 'main', 'checkup', 'mood', ya 'humanoid'
+  const [view, setView] = useState('main');
+  const [userData, setUserData] = useState(null); // Student ka data save karne ke liye state
+
+  // Jab component load ho, to student ka data fetch karein
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (auth.currentUser) {
+        const userDocRef = doc(db, 'users', auth.currentUser.uid);
+        const docSnap = await getDoc(userDocRef);
+        if (docSnap.exists()) {
+          setUserData(docSnap.data());
+        }
+      }
+    };
+    fetchUserData();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -17,34 +36,63 @@ function Dashboard() {
   };
 
   const renderMainView = () => (
-    <div>
-      <h1>Student Dashboard</h1>
-      <p>Welcome, student! Select an option to continue.</p>
-
-      <button onClick={() => setView('checkup')}>
-        1. Mental Health Checkup
-      </button>
-      <button onClick={() => setView('humanoid')}>
-        2. Talk to Humanoid
-      </button>
-      <button onClick={() => setView('mood')}>
-        3. Mood Analysis Using Face
-      </button>
-
-      <hr />
-      <button onClick={handleLogout}>Logout</button>
+    <div className="dashboard-container">
+      <div className="dashboard-card">
+        <div className="dashboard-header">
+          <div>
+            {/* Yahan student ka naam display hoga */}
+            <h1>Welcome, {userData ? userData.name.split(' ')[0] : 'Student'}!</h1>
+            <p>Your personal space for clarity and growth.</p>
+          </div>
+        </div>
+        
+        <div className="feature-grid">
+          <button className="feature-button" onClick={() => setView('checkup')}>
+            <span className="emoji">🧠</span>
+            <h3>AI Wellness Check</h3>
+            <p>Answer a few questions for a detailed analysis.</p>
+          </button>
+          <button className="feature-button" onClick={() => setView('mood')}>
+            <span className="emoji">😊</span>
+            <h3>Mood Mirror</h3>
+            <p>Analyze your current mood using your camera.</p>
+          </button>
+          <button className="feature-button" onClick={() => setView('humanoid')}>
+            <span className="emoji">🤖</span>
+            <h3>Talk to Mindy</h3>
+            <p>Have a voice conversation with our AI companion.</p>
+          </button>
+          <button className="feature-button" onClick={() => setView('journal')}>
+            <span className="emoji">📔</span>
+            <h3>AI Journal</h3>
+            <p>Reflect on your day and get gentle insights.</p>
+          </button>
+        </div>
+        
+        <div className="dashboard-footer">
+          <button className="footer-button" onClick={() => setView('pastReports')}>
+            📜 View Past Reports
+          </button>
+          <button className="footer-button logout-button" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+      </div>
     </div>
   );
 
-  // Main logic to switch between views
   const renderView = () => {
     switch(view) {
       case 'checkup':
-        return <Checkup onComplete={() => setView('main')} />;
+        return <AiCheckup onComplete={() => setView('main')} />;
       case 'mood':
         return <MoodAnalysis onComplete={() => setView('main')} />;
       case 'humanoid':
         return <Humanoid onComplete={() => setView('main')} />;
+      case 'pastReports':
+        return <PastReports onComplete={() => setView('main')} />;
+      case 'journal':
+        return <Journal onComplete={() => setView('main')} />;
       default:
         return renderMainView();
     }

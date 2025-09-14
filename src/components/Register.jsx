@@ -1,35 +1,27 @@
 import React, { useState } from 'react';
-import { auth, db } from '../firebase'; // Apni firebase.js file se import
+import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { setDoc, doc } from 'firebase/firestore';
+import './Form.css'; // Import the new CSS file
 
 function Register() {
-  // Har input field ke liye ek memory box (state)
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [studentId, setStudentId] = useState('');
   const [className, setClassName] = useState('');
   const [section, setSection] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
 
   const handleRegister = async (e) => {
-    e.preventDefault(); // Form ko page refresh karne se rokein
+    e.preventDefault();
     try {
-      // Firebase mein naya user banayein email aur password se
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
-      // Bachi hui details ko Firestore database mein save karein
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
-        name: name,
-        email: email,
-        studentId: studentId,
-        className: className,
-        section: section,
+        name, email, studentId, className, section, contactNumber
       });
-
-      alert('Registration successful!');
     } catch (error) {
       console.error("Error registering user: ", error);
       alert(error.message);
@@ -37,16 +29,17 @@ function Register() {
   };
 
   return (
-    <div>
-      <h2>Register</h2>
+    <div className="form-card">
+      <h2>Create Your Account 📝</h2>
       <form onSubmit={handleRegister}>
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" required /><br/>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required /><br/>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required /><br/>
-        <input type="text" value={studentId} onChange={(e) => setStudentId(e.target.value)} placeholder="Student ID" required /><br/>
-        <input type="text" value={className} onChange={(e) => setClassName(e.target.value)} placeholder="Class" required /><br/>
-        <input type="text" value={section} onChange={(e) => setSection(e.target.value)} placeholder="Section" required /><br/>
-        <button type="submit">Register</button>
+        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" className="form-input" required />
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="form-input" required />
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="form-input" required />
+        <input type="text" value={studentId} onChange={(e) => setStudentId(e.target.value)} placeholder="Student ID" className="form-input" required />
+        <input type="text" value={className} onChange={(e) => setClassName(e.target.value)} placeholder="Class" className="form-input" required />
+        <input type="text" value={section} onChange={(e) => setSection(e.target.value)} placeholder="Section" className="form-input" required />
+        <input type="tel" value={contactNumber} onChange={(e) => setContactNumber(e.target.value)} placeholder="Contact Number" className="form-input" required />
+        <button type="submit" className="form-button">Register</button>
       </form>
     </div>
   );
