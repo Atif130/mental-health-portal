@@ -466,32 +466,3 @@
   text-align: center;
   padding: 40px;
 }
-
-/* --- Responsive Styles --- */
-@media (max-width: 768px) {
-  .feature-card {
-    padding: 20px;
-    margin: 0;
-  }
-  .feature-card h2 {
-    font-size: 1.5rem;
-  }
-  .options-grid {
-    grid-template-columns: 1fr;
-  }
-  .journal-layout {
-    flex-direction: column;
-  }
-  .journal-past-entries {
-    max-height: 300px;
-    margin-top: 20px;
-  }
-  .video-container {
-    width: 280px;
-    height: 210px;
-  }
-  .robot-face {
-    width: 200px;
-    height: 200px;
-  }
-}
