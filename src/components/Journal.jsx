@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../firebase';
 import { collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import './Feature.css'; // Uses our feature styles
 
-// IMPORTANT: Yahan wahi API Key daalein
+// ## THE FIX ##
+// Using the direct API URL and reading the key from the environment variable.
+// We are NO LONGER using the GoogleGenerativeAI library in this file.
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
-const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent`;
 
 // Friendly Mascot
 const Mascot = () => (
@@ -25,7 +24,7 @@ function Journal({ onComplete }) {
   const [analysis, setAnalysis] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // This is your working code to fetch entries
+  // This function to fetch entries is correct and stays the same.
   useEffect(() => {
     const journalCollectionRef = collection(db, 'users', auth.currentUser.uid, 'journals');
     const q = query(journalCollectionRef, orderBy('createdAt', 'desc'));
@@ -35,7 +34,7 @@ function Journal({ onComplete }) {
     return () => unsubscribe();
   }, []);
 
-  // This is your working code to save an entry
+  // This function to save entries is correct and stays the same.
   const handleSaveEntry = async () => {
     if (entry.trim() === '') return;
     setLoading(true);
@@ -53,28 +52,44 @@ function Journal({ onComplete }) {
     }
   };
 
-  // This is your working code to analyze an entry
+  // ## THE FIX: This function now uses fetch(), just like your working chatbot ##
   const handleAnalyzeEntry = async (entryText) => {
     setLoading(true);
     setAnalysis('');
     const prompt = `You are a compassionate psychologist. Analyze the following journal entry written by a student. Identify the key emotions (e.g., sadness, anxiety, happiness, frustration), recurring themes, and potential positive or negative patterns. Provide a gentle, supportive, and insightful summary in 3-4 sentences. Do not give medical advice. The entry is: "${entryText}"`;
+    
     try {
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      setAnalysis(`AI Insight ✨: ${response.text()}`);
+      const payload = {
+        contents: [{ role: "user", parts: [{ text: prompt }] }]
+      };
+
+      const response = await fetch(`${API_URL}?key=${API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error.message || `API request failed`);
+      }
+
+      const data = await response.json();
+      const aiText = data.candidates[0].content.parts[0].text;
+      setAnalysis(`AI Insight ✨: ${aiText}`);
+
     } catch (error) {
       console.error("Error analyzing entry:", error);
-      setAnalysis("Could not analyze this entry at the moment.");
+      setAnalysis("Could not analyze this entry at the moment. Please check your API key and network.");
     } finally {
       setLoading(false);
     }
   };
 
-  // This is the new, redesigned display
+  // The display part of the component remains the same.
   return (
     <div className="feature-container">
       <div className="feature-card journal-layout">
-        
         {/* Left Side - Writing Area */}
         <div className="journal-writing-section">
           <button onClick={onComplete} className="back-button-feature" style={{position: 'static', marginBottom: '10px'}}>&larr; Back</button>
@@ -104,7 +119,6 @@ function Journal({ onComplete }) {
             </div>
           )) : <p>Your past entries will appear here.</p>}
         </div>
-
       </div>
     </div>
   );
