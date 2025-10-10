@@ -5,7 +5,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import './Feature.css'; // Uses our feature styles
 
 // IMPORTANT: Yahan wahi API Key daalein
-const API_KEY = "AIzaSyBegorbMgpLFe6YJbAnEdQ6bZqcRziTvIo";
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 // ✅ Updated model name - changed from "gemini-1.5-flash-latest" to "gemini-2.5-flash"
