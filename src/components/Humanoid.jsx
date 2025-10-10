@@ -50,7 +50,7 @@ function Humanoid({ onComplete }) {
   // Initialize the AI model only once
   useEffect(() => {
     const genAI = new GoogleGenerativeAI(API_KEY);
-    modelRef.current = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    modelRef.current = genAI.getGenerativeModel({ model: "gemini-2.5-flash-latest" });
   }, []);
 
   // Lip-sync animation effect
