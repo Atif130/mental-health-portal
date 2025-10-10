@@ -1,14 +1,7 @@
 import React, { useState } from 'react';
 import { db, auth } from '../firebase';
 import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import './Feature.css';
-
-// IMPORTANT: Yahan wahi API Key daalein
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
-const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
 // A fixed, standard set of 10 questions inspired by the PHQ-9 & GAD-7 screeners.
 const questions = [
@@ -24,6 +17,50 @@ const questions = [
   { id: 10, text: 'Feeling afraid, as if something awful might happen?', options: [{ text: 'Not at all', score: 0 }, { text: 'Several days', score: 1 }, { text: 'More than half the days', score: 2 }, { text: 'Nearly every day', score: 3 }] },
 ];
 
+// Pre-written content bank for analysis and suggestions based on score ranges
+const reportContent = {
+    low: {
+        analysis: "Your responses suggest that you are in a good state of mental well-being. You seem to be handling daily stressors effectively. Keep prioritizing your self-care routines!",
+        suggestions: [
+            "Continue your healthy habits! Regular exercise and a balanced diet can help maintain your positive state.",
+            "Explore a new hobby or creative outlet to further boost your mood and creativity.",
+            "Practice gratitude journaling. Writing down three things you're thankful for each day can enhance your sense of well-being.",
+            "Connect with friends and loved ones. Strong social ties are a key component of happiness.",
+            "Spend some time in nature. Even a short walk outdoors can be refreshing and reduce stress."
+        ]
+    },
+    mild: {
+        analysis: "Your score indicates that you might be experiencing some mild stress or emotional distress. While generally manageable, it's a good idea to pay attention to these feelings and practice some self-care.",
+        suggestions: [
+            "Try a 5-minute guided meditation. Apps like Calm or Headspace can be great, or find one on YouTube.",
+            "Talk about what's on your mind with a friend or family member you trust.",
+            "Make sure you are getting enough sleep. Aim for 7-9 hours per night to help your mind rest and recover.",
+            "Engage in a physical activity you enjoy, like dancing, jogging, or cycling, to release endorphins.",
+            "Take short breaks throughout the day to stretch, breathe deeply, or step away from your screen."
+        ]
+    },
+    moderate: {
+        analysis: "Your responses suggest a moderate level of emotional distress. It's important to address these feelings. This is a good time to be proactive about your mental health and seek out supportive resources.",
+        suggestions: [
+            "It could be very helpful to schedule a conversation with a school counselor to talk through what you're experiencing.",
+            "Create a structured daily routine. This can provide a sense of stability and control when things feel overwhelming.",
+            "Limit your exposure to social media and the news for a day or two to reduce external stressors.",
+            "Try a calming activity like drawing, listening to soothing music, or taking a warm bath.",
+            "Write down your worries in a journal. Simply getting them out of your head and onto paper can provide relief."
+        ]
+    },
+    high: {
+        analysis: "Your score indicates a significant level of distress. It is highly recommended that you speak with a trusted adult, school counselor, or a mental health professional soon. Your well-being is a priority, and getting support is a sign of strength.",
+        suggestions: [
+            "Please reach out to a school counselor or a trusted teacher as soon as possible. They are there to help you.",
+            "If you need to talk to someone immediately, consider calling a helpline. They offer free, confidential support.",
+            "Focus on small, simple tasks. Don't pressure yourself to do everything at once. One small step is enough for today.",
+            "Be kind to yourself. Allow yourself to rest and don't feel guilty about taking time for yourself.",
+            "Remember that you are not alone, and help is available. Talking to someone is the first and most important step."
+        ]
+    }
+};
+
 const Mascot = () => (
     <div className="mascot-container">
         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -37,18 +74,6 @@ function AiCheckup({ onComplete }) {
   const [userAnswers, setUserAnswers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [finalReport, setFinalReport] = useState(null);
-  const [error, setError] = useState('');
-
-  const parseJsonResponse = (text) => {
-    try {
-      const match = text.match(/```json\n([\s\S]*?)\n```/);
-      if (match && match[1]) { return JSON.parse(match[1]); }
-      return JSON.parse(text);
-    } catch (e) {
-      console.error("Failed to parse JSON from AI response:", text, e);
-      return null;
-    }
-  };
 
   const handleAnswer = (selectedOption) => {
     const updatedAnswers = [...userAnswers, { question: questions[currentQuestionIndex].text, answer: selectedOption.text, score: selectedOption.score }];
@@ -61,45 +86,44 @@ function AiCheckup({ onComplete }) {
     }
   };
   
-  const generateFinalReport = async (answers) => {
+  const generateFinalReport = (answers) => {
     setLoading(true);
-    setError('');
 
-    const totalScore = answers.reduce((sum, ans) => sum + ans.score, 0);
-    const scores = answers.map(ans => ans.score);
-    
-    const prompt = `You are a friendly and empathetic school counselor. A student has completed a 10-question mental health checkup. Their total score is ${totalScore} (out of 30), and their individual scores for the 10 questions were: ${scores.join(', ')}.
+    // This setTimeout simulates the AI "thinking" for 2.5 seconds
+    setTimeout(() => {
+      const totalScore = answers.reduce((sum, ans) => sum + ans.score, 0);
+      let resultCategory;
 
-    Based on this total score and the pattern of scores, perform the following actions:
-    1. Provide a detailed, supportive, and personalized analysis of the student's potential state.
-    2. Provide a list of actionable suggestions and remedies for the student.
-    
-    Format your response as a single JSON object with three keys: {"score": ${totalScore}, "analysis": "Your detailed analysis here...", "suggestions": "Your list of suggestions here."}. Do not add any text outside this JSON block.`;
-
-    try {
-      const result = await model.generateContent(prompt);
-      const responseText = await result.response.text();
-      const report = parseJsonResponse(responseText); 
-
-      if (report) {
-        setFinalReport(report);
-        const userDocRef = doc(db, 'users', auth.currentUser.uid);
-        await updateDoc(userDocRef, {
-            reports: arrayUnion({ ...report, createdAt: new Date().toISOString() })
-        });
+      if (totalScore <= 9) {
+        resultCategory = 'low';
+      } else if (totalScore <= 16) {
+        resultCategory = 'mild';
+      } else if (totalScore <= 23) {
+        resultCategory = 'moderate';
       } else {
-        setError("The AI gave a response in an unexpected format. Please try again.");
+        resultCategory = 'high';
       }
-    } catch (e) {
-      console.error(e);
-      if (e.message && e.message.includes('429')) {
-        setError("You have exceeded your free API quota for the minute. Please wait and try again.");
-      } else {
-        setError("An error occurred while generating the report. Please try again later.");
-      }
-    } finally {
-        setLoading(false);
-    }
+
+      const content = reportContent[resultCategory];
+      // Get a random suggestion from the list for the determined category
+      const randomSuggestion = content.suggestions[Math.floor(Math.random() * content.suggestions.length)];
+
+      const report = {
+        score: totalScore,
+        analysis: content.analysis,
+        suggestions: randomSuggestion,
+      };
+
+      setFinalReport(report);
+      
+      // Save the generated report to Firebase
+      const userDocRef = doc(db, 'users', auth.currentUser.uid);
+      updateDoc(userDocRef, {
+          reports: arrayUnion({ ...report, createdAt: new Date().toISOString() })
+      });
+
+      setLoading(false);
+    }, 2500); // 2.5 second delay for the "AI thinking" illusion
   };
 
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
