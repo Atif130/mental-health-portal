@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+ import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
@@ -71,10 +71,10 @@ function Dashboard() {
         
         <div className="dashboard-footer">
           <button className="footer-button" onClick={() => setView('pastReports')}>
-            📜 View Past Reports
+            📊 View Previous Insights
           </button>
           <button className="footer-button logout-button" onClick={handleLogout}>
-            Logout
+            🔒 Sign Out
           </button>
         </div>
       </div>
