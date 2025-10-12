@@ -33,7 +33,7 @@ function App() {
     return (
       <div className="app-container">
         <div className="main-card">
-          <h1>Welcome to MindWell</h1>
+          <h1>Welcome to Silver Companion</h1>
           <p>Your confidential space for mental wellness.</p>
           <div className="choice-container">
             <button className="choice-button" onClick={() => setView('student')}>
