@@ -4,12 +4,15 @@ import { collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firesto
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import './Feature.css'; // Uses our feature styles
 
+
 // IMPORTANT: Yahan wahi API Key daalein
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 // ✅ Updated model name - changed from "gemini-1.5-flash-latest" to "gemini-2.5-flash"
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
 
 // Friendly Mascot
 const Mascot = () => (
@@ -20,11 +23,13 @@ const Mascot = () => (
     </div>
 );
 
+
 function Journal({ onComplete }) {
   const [entry, setEntry] = useState('');
   const [pastEntries, setPastEntries] = useState([]);
   const [analysis, setAnalysis] = useState('');
   const [loading, setLoading] = useState(false);
+
 
   // This is your working code to fetch entries
   useEffect(() => {
@@ -35,6 +40,7 @@ function Journal({ onComplete }) {
     });
     return () => unsubscribe();
   }, []);
+
 
   // This is your working code to save an entry
   const handleSaveEntry = async () => {
@@ -54,6 +60,7 @@ function Journal({ onComplete }) {
     }
   };
 
+
   // This is your working code to analyze an entry
   const handleAnalyzeEntry = async (entryText) => {
     setLoading(true);
@@ -71,6 +78,7 @@ function Journal({ onComplete }) {
     }
   };
 
+
   // This is the new, redesigned display
   return (
     <div className="feature-container">
@@ -78,7 +86,6 @@ function Journal({ onComplete }) {
         
         {/* Left Side - Writing Area */}
         <div className="journal-writing-section">
-          <button onClick={onComplete} className="back-button-feature" style={{position: 'static', marginBottom: '10px'}}>&larr; Back</button>
           <div style={{textAlign: 'center', marginBottom: '20px'}}>
             <Mascot />
             <h2>What's on your mind?</h2>
@@ -107,8 +114,45 @@ function Journal({ onComplete }) {
         </div>
 
       </div>
+      
+      {/* Back Button positioned in lower right corner */}
+      <button 
+        onClick={onComplete} 
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          backgroundColor: '#6b7280',
+          color: 'white',
+          border: 'none',
+          padding: '12px 20px',
+          borderRadius: '50px',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontWeight: '600',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          transition: 'all 0.3s ease',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}
+        onMouseEnter={(e) => {
+          e.target.style.backgroundColor = '#4b5563';
+          e.target.style.transform = 'translateY(-2px)';
+          e.target.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.2)';
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.backgroundColor = '#6b7280';
+          e.target.style.transform = 'translateY(0px)';
+          e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        }}
+      >
+        &larr; Back
+      </button>
     </div>
   );
 }
+
 
 export default Journal;
