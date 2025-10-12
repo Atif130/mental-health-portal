@@ -4,7 +4,7 @@ import './Feature.css'; // Uses the same base styles
 
 // IMPORTANT: Yahan apni nayi waali API Key daalein
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
+ 
 // A friendly robot face component
 const RobotFace = ({ mouthShape }) => {
   const mouths = {
@@ -50,7 +50,7 @@ function Humanoid({ onComplete }) {
   // Initialize the AI model only once
   useEffect(() => {
     const genAI = new GoogleGenerativeAI(API_KEY);
-    modelRef.current = genAI.getGenerativeModel({ model: "gemini-2.5-flash-latest" });
+    modelRef.current = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
   }, []);
 
   // Lip-sync animation effect
