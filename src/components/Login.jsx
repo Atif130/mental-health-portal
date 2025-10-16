@@ -20,7 +20,7 @@ function Login() {
 
   return (
     <div className="form-card">
-      <h2>Student Login 🔑</h2>
+      <h2>Login 🔑</h2>
       <form onSubmit={handleLogin}>
         <input 
           type="email" 
