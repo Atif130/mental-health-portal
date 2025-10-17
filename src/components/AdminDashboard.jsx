@@ -119,16 +119,15 @@ The Admin Team`;
 
   return (
     <div className="detail-view">
-      <button className="footer-button" onClick={onBack} style={{ marginBottom: 16 }}>&larr; Back to Student List</button>
-      <h2>Student Report: {student.name}</h2>
+      <button className="footer-button" onClick={onBack} style={{ marginBottom: 16 }}>&larr; Back to List</button>
+      <h2>Report: {student.name}</h2>
 
       <div className="detail-grid">
         <div className="detail-left">
-          <h4>Student Details</h4>
+          <h4>Details</h4>
           <p><strong>Email:</strong> {student.email}</p>
-          <p><strong>Student ID:</strong> {student.studentId ?? 'N/A'}</p>
+          <p><strong>ID:</strong> {student.studentId ?? 'N/A'}</p>
           <p><strong>Contact:</strong> {student.contactNumber ?? 'N/A'}</p>
-          <p><strong>Section / Class:</strong> {student.class ?? 'N/A'}</p>
         </div>
 
         <div className="detail-right">
@@ -185,7 +184,7 @@ function AdminDashboard({ onLogout }) {
       setFilteredStudents(userList);
     } catch (error) {
       console.error("Error fetching students: ", error);
-      alert("Could not fetch student data. Please check Firestore rules and network.");
+      alert("Could not fetch data. Please check Firestore rules and network.");
     } finally {
       setLoading(false);
     }
@@ -222,7 +221,7 @@ function AdminDashboard({ onLogout }) {
               <div style={{ flex: 1, minWidth: 200 }}>
                 <input
                   type="text"
-                  placeholder="Search students by name, email, or ID..."
+                  placeholder="Search by name & email..."
                   className="search-bar"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -237,7 +236,7 @@ function AdminDashboard({ onLogout }) {
               </div>
             </div>
 
-            {loading ? (<p>Loading student data...</p>) : (
+            {loading ? (<p>Loading data...</p>) : (
               <>
                 {viewMode === 'grid' ? (
                   <div className="student-grid">
