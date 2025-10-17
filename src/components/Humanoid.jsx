@@ -124,6 +124,7 @@ function Humanoid({ onComplete }) {
             <div className={`user-speech-bubble ${lastUserText ? 'visible' : ''}`}>
               {lastUserText}
             </div>
+
             <button 
               className={`mic-button ${isListening ? 'listening' : ''}`}
               onClick={handleListen}
@@ -135,6 +136,29 @@ function Humanoid({ onComplete }) {
                 <line x1="12" y1="19" x2="12" y2="23"></line>
               </svg>
             </button>
+
+            {/* 🔴 Interrupt Button */}
+            <button 
+              onClick={() => {
+                speechSynthesis.cancel();
+                setIsSpeaking(false);
+                setStatusMessage('Interrupted. You can ask another question now.');
+              }}
+              className="interrupt-button"
+              style={{
+                marginTop: '10px',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                cursor: 'pointer',
+                fontWeight: '500'
+              }}
+            >
+              ⛔ Stop
+            </button>
+
             <p style={{marginTop: '15px', color: '#4a5568', fontWeight: '500'}}>{statusMessage}</p>
           </div>
         </div>
