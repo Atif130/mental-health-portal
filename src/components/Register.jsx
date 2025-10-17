@@ -8,9 +8,6 @@ function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [studentId, setStudentId] = useState('');
-  const [className, setClassName] = useState('');
-  const [section, setSection] = useState('');
   const [contactNumber, setContactNumber] = useState('');
 
   const handleRegister = async (e) => {
@@ -20,7 +17,9 @@ function Register() {
       const user = userCredential.user;
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
-        name, email, studentId, className, section, contactNumber
+        name,
+        email,
+        contactNumber
       });
     } catch (error) {
       console.error("Error registering user: ", error);
@@ -32,13 +31,38 @@ function Register() {
     <div className="form-card">
       <h2>Create Your Account 📝</h2>
       <form onSubmit={handleRegister}>
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" className="form-input" required />
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="form-input" required />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="form-input" required />
-        <input type="text" value={studentId} onChange={(e) => setStudentId(e.target.value)} placeholder="Student ID" className="form-input" required />
-        <input type="text" value={className} onChange={(e) => setClassName(e.target.value)} placeholder="Class" className="form-input" required />
-        <input type="text" value={section} onChange={(e) => setSection(e.target.value)} placeholder="Section" className="form-input" required />
-        <input type="tel" value={contactNumber} onChange={(e) => setContactNumber(e.target.value)} placeholder="Contact Number" className="form-input" required />
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Full Name"
+          className="form-input"
+          required
+        />
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          className="form-input"
+          required
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          className="form-input"
+          required
+        />
+        <input
+          type="tel"
+          value={contactNumber}
+          onChange={(e) => setContactNumber(e.target.value)}
+          placeholder="Contact Number"
+          className="form-input"
+          required
+        />
         <button type="submit" className="form-button">Register</button>
       </form>
     </div>
