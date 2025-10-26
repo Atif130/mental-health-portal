@@ -4,8 +4,20 @@ import './Feature.css'; // Uses the same base styles
 
 // IMPORTANT: Yahan apni nayi waali API Key daalein
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
- 
-// A friendly robot face component
+
+// --------- Mental Health Keywords Array & Filter Function ---------
+const mentalHealthKeywords = [
+  "mental health", "anxiety", "stress", "wellbeing", "depression",
+  "mood", "sad", "happy", "lonely", "emotion", "panic", "fear",
+  "worry", "therapy", "counsel", "psychology", "support", "help", "mindfulness",
+  "cope", "sleep", "motivation", "self-esteem", "self care", "feeling", "feelings"
+];
+function isMentalHealthRelated(text) {
+  const lower = text.toLowerCase();
+  return mentalHealthKeywords.some((kw) => lower.includes(kw));
+}
+
+// --------- RobotFace component ---------
 const RobotFace = ({ mouthShape }) => {
   const mouths = {
     closed: <path d="M 35 68 Q 50 72 65 68" stroke="#6366f1" strokeWidth="4" fill="none" />,
@@ -36,7 +48,7 @@ const RobotFace = ({ mouthShape }) => {
   );
 };
 
-
+// --------- Humanoid component ---------
 function Humanoid({ onComplete }) {
   const [lastUserText, setLastUserText] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -88,12 +100,21 @@ function Humanoid({ onComplete }) {
     setStatusMessage('Listening...');
     recognition.start();
 
+    // --------- Main Customisation: Only mental health topics ---------
     recognition.onresult = async (event) => {
       const userText = event.results[0][0].transcript;
       setLastUserText(userText);
       setTimeout(() => setLastUserText(''), 4000);
 
       setStatusMessage('Thinking...');
+
+      if (!isMentalHealthRelated(userText)) {
+        const politeMessage = "I'm sorry, I can only answer questions related to mental health, emotions, stress, anxiety, or wellbeing.";
+        speak(politeMessage);
+        setStatusMessage('Please ask a mental health related question.');
+        return;
+      }
+
       try {
         const result = await modelRef.current.generateContent(userText);
         const response = await result.response;
@@ -104,6 +125,7 @@ function Humanoid({ onComplete }) {
         speak("Sorry, I'm having a bit of trouble right now.");
       }
     };
+    // -----------------------------------------------------------
 
     recognition.onend = () => {
       setIsListening(false);
